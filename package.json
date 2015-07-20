@@ -1,0 +1,13 @@
+{
+  "name": "mintpeaks-climate",
+  "version": "0.0.1",
+  "main": "climate_reporter.js",
+  "keywords": [],
+  "author": "Miha Rebernik <miha@rebernik.info>",
+  "license": "MIT",
+  "description": "Tessel app that reports data from the climate sensor to a node process over a tcp socket.",
+  "dependencies": {
+    "climate-si7020": "^0.1.1",
+    "debug": "^2.2.0"
+  }
+}

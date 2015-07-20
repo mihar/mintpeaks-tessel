@@ -1,0 +1,22 @@
+{
+    "env": {
+        "node": true
+    },
+    "rules": {
+        "strict": 0,
+        "eol-last": 0,
+        "camelcase": 0,
+        "quotes": [2, "single"],
+        "comma-style": [2, "last"],
+        "semi": [2, "always"],
+        "curly": [2, "all"],
+        "no-comma-dangle": 0,
+        "no-underscore-dangle": 0,
+        "no-else-return": 2,
+        "one-variable-per-var/one-variable-per-var": 2,
+        "new-cap": [2, {newIsCap: true}],
+    },
+    "plugins": [
+        "one-variable-per-var"
+    ]
+}
