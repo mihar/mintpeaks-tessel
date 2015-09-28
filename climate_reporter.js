@@ -1,62 +1,62 @@
-var debug = require('debug')('mintpeaks:tessel_climate_reporter');
 var tessel = require('tessel');
-var net = require('net');
-var climatelib = require('climate-si7020');
-var climate = climatelib.use(tessel.port.A);
+var wifi = require('wifi-cc3000');
 
-// Server data.
-var HOST = 'pozojcek.pozoj.si';
+var mintpeaks = require('./lib/mintpeaks'); // The mintpeaks server
+var climate = require('./lib/climate'); // The climate module
+var blink_led = require('./lib/blink_led'); // Simple library to blink the LED light
+
+// LED light that we'll blink upon each measurement transmission.
+var led = tessel.led[1].output(0);
+
+// Remote server.
+var HOST = 'mintpeaks.com';
 var PORT = 10231;
+var INTERVAL = 1500;
 
-// Connect to server.
-var client = new net.Socket();
+console.log('Climate reporter starting up ...');
 
-client.connect(PORT, HOST, function() {
-  debug('Connected to server', HOST, PORT);
-});
+var read_and_report_data = function() {
+  // Read data.
+  climate.read_measurements(function(err, data) {
+    if (err) {
+      return console.log('Error reading temperature', err);
+    }
 
-client.on('close', function() {
-  // TODO: Reconnect to server.
-  debug('Connection closed', HOST, PORT);
-});
-
-// Wait for the climate module to start up.
-climate.on('ready', function () {
-  debug('Connected to si7020');
-
-  // Prepare data object.
-  var data = Object.create(null);
-
-  // Loop forever
-  setImmediate(function loop () {
-    // Read temperature.
-    climate.readTemperature('c', function (err, temp) {
-      if (err) {
-        debug('Error reading temperature', err);
-      }
-
-      // Set temperature.
-      data.temperature = temp.toFixed(4);
-
-      // Read humidity.
-      climate.readHumidity(function (err2, humid) {
-        if (err2) {
-          debug('Error reading humidity', err2);
-        }
-
-        // Set humidity.
-        data.humidity = humid.toFixed(4);
-
-        // Flush data to server.
-        client.write(JSON.stringify(data));
-
-        // Loop.
-        setTimeout(loop, 1000);
+    if (wifi.isConnected()) {
+      mintpeaks.write(data, function(err) {
+        blink_led(led);
       });
-    });
+    }
+    
+    // Loop.
+    setTimeout(read_and_report_data, INTERVAL);
   });
-});
+};
 
-climate.on('error', function(err) {
-  debug('Error connecting si7020', err);
-});
+// Boot up.
+var boot = function() {
+  if (!wifi.isConnected()) {
+    console.log('Waiting for WiFi...');
+    return setTimeout(boot, 1000);
+  }
+
+  // Connect to climate module.
+  if (!climate.init(tessel.ports.A)) {
+    console.log('Waiting for the climate module...');
+    return setTimeout(boot, 1000);  
+  }
+
+  // Connect to mintpeaks.
+  if (!mintpeaks.connect({
+    host: HOST, 
+    port: PORT
+  })) {
+    console.log('Waiting for mintpeaks...');
+    return setTimeout(boot, 1000); 
+  }
+
+  console.log('We have booted, starting climate reporting...');
+  read_and_report_data();
+};
+
+setImmediate(boot);
