@@ -1,5 +1,4 @@
 var tessel = require('tessel');
-var wifi = require('wifi-cc3000');
 
 var mintpeaks = require('./lib/mintpeaks'); // The mintpeaks server
 var climate = require('./lib/climate'); // The climate module
@@ -35,10 +34,6 @@ var read_and_report_data = function() {
 
 // Boot up.
 var boot = function() {
-  if (!wifi.isConnected()) {
-    console.log('Waiting for WiFi...');
-    return setTimeout(boot, 1000);
-  }
 
   // Connect to climate module.
   if (!climate.init(tessel.ports.A)) {
