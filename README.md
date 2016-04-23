@@ -15,13 +15,13 @@ npm install Tessel
 Then you should adjust the server where Tessel will be sending climate data in `climate_reporter.js`, and run it on the Tessel with:
 
 ```
-tessel run climate_reporter.js
+t2 run climate_reporter.js
 ```
 
 If you'd like to run this untethered, you will need to bake the script onto the Tessel, you can do that with:
 
 ```
-tessel push climate_reporter.js
+t2 push climate_reporter.js
 ```
 
 Now everytime your Tessel will boot up, it'll automatically start sending climate data to the configured server.
