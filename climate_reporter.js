@@ -4,8 +4,10 @@ var mintpeaks = require('./lib/mintpeaks'); // The mintpeaks server
 var climate = require('./lib/climate'); // The climate module
 var blink_led = require('./lib/blink_led'); // Simple library to blink the LED light
 
+// LED light that we'll blink when booting.
+var bootup_led = tessel.led[2].on();
 // LED light that we'll blink upon each measurement transmission.
-var led = tessel.led[1].output(0);
+var data_led = tessel.led[3].off();
 
 // Remote server.
 var HOST = 'mintpeaks.com';
@@ -21,12 +23,10 @@ var read_and_report_data = function() {
       return console.log('Error reading temperature', err);
     }
 
-    if (wifi.isConnected()) {
-      mintpeaks.write(data, function(err) {
-        blink_led(led);
-      });
-    }
-    
+    mintpeaks.write(data, function(err) {
+      blink_led(data_led);
+    });
+
     // Loop.
     setTimeout(read_and_report_data, INTERVAL);
   });
@@ -34,20 +34,21 @@ var read_and_report_data = function() {
 
 // Boot up.
 var boot = function() {
+  blink_led(bootup_led);
 
   // Connect to climate module.
   if (!climate.init(tessel.ports.A)) {
     console.log('Waiting for the climate module...');
-    return setTimeout(boot, 1000);  
+    return setTimeout(boot, 1000);
   }
 
   // Connect to mintpeaks.
   if (!mintpeaks.connect({
-    host: HOST, 
+    host: HOST,
     port: PORT
   })) {
     console.log('Waiting for mintpeaks...');
-    return setTimeout(boot, 1000); 
+    return setTimeout(boot, 1000);
   }
 
   console.log('We have booted, starting climate reporting...');
