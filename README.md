@@ -44,3 +44,4 @@ This repo is part of the mintpeaks ecosystem, there are two other parts you need
 
 - **Websocket proxy** [mintpeaks-tessel](https://github.com/mihar/mintpeaks) - Server that receieves data from the Tessel and send it over socket.io
 - **Website** [mintpeaks-com](https://github.com/mihar/mintpeaks-com) - Simple client side app that connects to this proxy throught socket.io
+- **Alexa Skill** [mintpeaks-alexa-skill](https://github.com/mihar/mintpeaks-alexa-skill) - Alexa skill to get climate data by just asking
